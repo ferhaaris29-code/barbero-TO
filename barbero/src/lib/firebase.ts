@@ -48,6 +48,7 @@ export function loadSalonState(): SalonState | null {
 }
 
 export function saveSalonState(state: SalonState): void {
+  if (!state) return;
   try {
     localStorage.setItem(KEY, JSON.stringify(state));
     set(ref(db, 'salon'), state);
@@ -60,7 +61,8 @@ export function subscribeSalonState(cb: (s: SalonState) => void): () => void {
   const salonRef = ref(db, 'salon');
   const unsubscribe = onValue(salonRef, (snapshot) => {
     const data = snapshot.val();
-    if (data) {
+    // SÉCURITÉ : On n'envoie les données à l'application QUE si la base Firebase n'est pas vide
+    if (data && typeof data === 'object') {
       cb(data as SalonState);
     }
   });
