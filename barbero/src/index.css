@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@theme {
+  --color-obsidian: #0b0d10;
+  --color-onyx: #12151a;
+  --color-charcoal: #1a1e25;
+  --color-line: #262b34;
+  --color-gold: #d4af37;
+  --color-gold-soft: #e6c96a;
+  --color-gold-dim: #8a7326;
+  --color-cream: #f3f4f6;
+  --color-muted: #9aa1ac;
+  --color-emerald-glow: #22c55e;
+  --color-ruby: #ef4444;
+  --font-display: "Marcellus", serif;
+  --font-body: "Jost", sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--color-obsidian);
+  color: var(--color-cream);
+  font-family: var(--font-body);
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(212, 175, 55, 0.07), transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, rgba(212, 175, 55, 0.04), transparent 55%);
+  background-attachment: fixed;
+}
+
+.font-display { font-family: var(--font-display); }
+
+.card-lux {
+  background: linear-gradient(160deg, rgba(26, 30, 37, 0.92), rgba(18, 21, 26, 0.96));
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.card-lux-hover { transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; }
+.card-lux-hover:hover {
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 24px rgba(212, 175, 55, 0.1);
+}
+
+.glass {
+  background: rgba(18, 21, 26, 0.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+}
+
+.gold-text {
+  background: linear-gradient(120deg, #d4af37, #f1dd8a 45%, #d4af37 70%, #a8862a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn-gold {
+  background: linear-gradient(120deg, #d4af37, #e8ce74 50%, #c9a532);
+  color: #14100a;
+  font-weight: 600;
+  transition: box-shadow 0.3s ease, transform 0.15s ease, filter 0.3s ease;
+  box-shadow: 0 4px 18px rgba(212, 175, 55, 0.25);
+}
+.btn-gold:hover { box-shadow: 0 6px 26px rgba(212, 175, 55, 0.45); filter: brightness(1.05); }
+.btn-gold:active { transform: scale(0.97); }
+
+.btn-ghost {
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: var(--color-gold-soft);
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+.btn-ghost:hover { background: rgba(212, 175, 55, 0.1); border-color: rgba(212, 175, 55, 0.6); }
+
+.glow-green { box-shadow: 0 0 14px rgba(34, 197, 94, 0.55), 0 0 40px rgba(34, 197, 94, 0.18); }
+.glow-red { box-shadow: 0 0 14px rgba(239, 68, 68, 0.4), 0 0 36px rgba(239, 68, 68, 0.12); }
+.glow-gold { box-shadow: 0 0 16px rgba(212, 175, 55, 0.4), 0 0 48px rgba(212, 175, 55, 0.14); }
+
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.5), transparent);
+}
+
+.input-lux {
+  background: rgba(11, 13, 16, 0.7);
+  border: 1px solid var(--color-line);
+  border-radius: 0.65rem;
+  padding: 0.65rem 0.9rem;
+  color: var(--color-cream);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  font-family: var(--font-body);
+}
+.input-lux:focus { border-color: rgba(212, 175, 55, 0.6); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12); }
+.input-lux::placeholder { color: #5b6270; }
+
+/* ── Ticket reçu : règles strictes de lisibilité ─────────────────────────
+   Fond blanc pur + TOUT le texte forcé en noir #111111, quelles que soient
+   les classes héritées (titres, paragraphes, spans, labels, prix, divs). */
+.ticket-receipt {
+  background-color: #ffffff !important;
+  color: #111111 !important;
+}
+.ticket-receipt *,
+.ticket-receipt h1,
+.ticket-receipt h2,
+.ticket-receipt h3,
+.ticket-receipt p,
+.ticket-receipt span,
+.ticket-receipt div,
+.ticket-receipt label {
+  color: #111111 !important;
+  -webkit-text-fill-color: #111111 !important;
+  background-image: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  text-shadow: none !important;
+}
+.ticket-receipt hr,
+.ticket-receipt [class*='border'] {
+  border-color: #cccccc !important;
+}
+
+/* ── Impression : seul le ticket (.print-area) est imprimé ── */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+  .print-area {
+    position: fixed !important;
+    inset: 0 !important;
+    margin: 0 auto !important;
+    max-width: 380px !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  body {
+    background: #fff !important;
+  }
+}
+
+@keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(0.85); } }
+.pulse-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
+
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: #0b0d10; }
+::-webkit-scrollbar-thumb { background: #2a2f38; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #8a7326; }
