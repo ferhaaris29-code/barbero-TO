@@ -19,44 +19,40 @@
  *        listen: onValue(ref(db, 'salon'), snap => cb(snap.val()))
  *   The rest of the app (useSalon store) needs zero changes.
  */
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getDatabase, ref, set, onValue } from 'firebase/database';
 import type { SalonState } from './types';
 
 export const FIREBASE_CONFIG = {
-  apiKey: '',
-  authDomain: '',
-  databaseURL: '',
-  projectId: 'barbero-tizi-ouzou',
-  storageBucket: '',
-  messagingSenderId: '',
-  appId: '',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
+  databaseURL: 'https://berbero-el-mahata-to-default-rtdb.firebaseio.com',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'berbero-el-mahata-to',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
 };
 
-const KEY = 'barbero-salon-state-v6';
-const channel =
-  typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel(KEY) : null;
+const app = getApps().length > 0 ? getApp() : initializeApp(FIREBASE_CONFIG);
+const db = getDatabase(app);
 
 export function loadSalonState(): SalonState | null {
-  try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as SalonState) : null;
-  } catch {
-    return null;
-  }
+  return null;
 }
 
 export function saveSalonState(state: SalonState): void {
   try {
-    localStorage.setItem(KEY, JSON.stringify(state));
-    channel?.postMessage(state);
-  } catch {
-    /* quota / private mode — ignore */
+    set(ref(db, 'salon'), state);
+  } catch (e) {
+    console.error(e);
   }
 }
 
-/** Live subscription (multi-tab realtime sync — mirrors onValue()). */
 export function subscribeSalonState(cb: (s: SalonState) => void): () => void {
-  if (!channel) return () => {};
-  const handler = (e: MessageEvent) => cb(e.data as SalonState);
-  channel.addEventListener('message', handler);
-  return () => channel.removeEventListener('message', handler);
+  const salonRef = ref(db, 'salon');
+  const unsubscribe = onValue(salonRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) cb(data as SalonState);
+  });
+  return () => unsubscribe();
 }
