@@ -36,12 +36,20 @@ export const FIREBASE_CONFIG = {
 const app = getApps().length > 0 ? getApp() : initializeApp(FIREBASE_CONFIG);
 const db = getDatabase(app);
 
+const KEY = 'barbero-salon-state-v6';
+
 export function loadSalonState(): SalonState | null {
-  return null;
+  try {
+    const raw = localStorage.getItem(KEY);
+    return raw ? (JSON.parse(raw) as SalonState) : null;
+  } catch {
+    return null;
+  }
 }
 
 export function saveSalonState(state: SalonState): void {
   try {
+    localStorage.setItem(KEY, JSON.stringify(state));
     set(ref(db, 'salon'), state);
   } catch (e) {
     console.error(e);
@@ -52,7 +60,9 @@ export function subscribeSalonState(cb: (s: SalonState) => void): () => void {
   const salonRef = ref(db, 'salon');
   const unsubscribe = onValue(salonRef, (snapshot) => {
     const data = snapshot.val();
-    if (data) cb(data as SalonState);
+    if (data) {
+      cb(data as SalonState);
+    }
   });
   return () => unsubscribe();
 }
