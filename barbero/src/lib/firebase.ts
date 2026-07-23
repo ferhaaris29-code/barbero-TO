@@ -19,42 +19,44 @@
  *        listen: onValue(ref(db, 'salon'), snap => cb(snap.val()))
  *   The rest of the app (useSalon store) needs zero changes.
  */
-import { initializeApp, getApps } from 'firebase/app';
-import { getDatabase, ref, set, onValue } from 'firebase/database';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { getDatabase, ref, set, onValue, type Database } from 'firebase/database';
+import type { SalonState } from './types';
 import { DEFAULT_STATE } from './defaultState';
 
 export const FIREBASE_CONFIG = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
+  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY as string) || '',
+  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string) || '',
   databaseURL: 'https://berbero-el-mahata-to-default-rtdb.firebaseio.com',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'berbero-el-mahata-to',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || 'berbero-el-mahata-to',
+  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string) || '',
+  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string) || '',
+  appId: (import.meta.env.VITE_FIREBASE_APP_ID as string) || '',
 };
 
-const app = getApps().length > 0 ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
-const db = getDatabase(app);
+const app: FirebaseApp = getApps().length > 0 ? getApp() : initializeApp(FIREBASE_CONFIG);
+const db: Database = getDatabase(app);
 
-export function loadSalonState() {
-  return DEFAULT_STATE;
+export function loadSalonState(): SalonState | null {
+  return DEFAULT_STATE as SalonState;
 }
 
-export function saveSalonState(state) {
+export function saveSalonState(state: SalonState): void {
   if (!state) return;
   try {
     set(ref(db, 'salon'), state);
   } catch (e) {
-    console.error(e);
+    console.error('Erreur Firebase :', e);
   }
 }
 
-export function subscribeSalonState(cb) {
+export function subscribeSalonState(cb: (s: SalonState) => void): () => void {
   const salonRef = ref(db, 'salon');
-  return onValue(salonRef, (snapshot) => {
+  const unsubscribe = onValue(salonRef, (snapshot) => {
     const data = snapshot.val();
     if (data) {
-      cb(data);
+      cb(data as SalonState);
     }
   });
+  return () => unsubscribe();
 }
