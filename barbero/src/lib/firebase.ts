@@ -19,7 +19,7 @@
  *        listen: onValue(ref(db, 'salon'), snap => cb(snap.val()))
  *   The rest of the app (useSalon store) needs zero changes.
  */
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { getDatabase, ref, set, onValue } from 'firebase/database';
 import { DEFAULT_STATE } from './defaultState';
 
@@ -33,25 +33,22 @@ export const FIREBASE_CONFIG = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
 };
 
-const app = getApps().length > 0 ? getApp() : initializeApp(FIREBASE_CONFIG);
+const app = getApps().length > 0 ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
 const db = getDatabase(app);
 
-// 1. Charger l'état au démarrage (charge DEFAULT_STATE si la base est vide)
 export function loadSalonState() {
   return DEFAULT_STATE;
 }
 
-// 2. Envoyer chaque réservation / changement directement à Firebase
 export function saveSalonState(state) {
   if (!state) return;
   try {
     set(ref(db, 'salon'), state);
   } catch (e) {
-    console.error("Erreur d'écriture Firebase :", e);
+    console.error(e);
   }
 }
 
-// 3. Écouter en direct depuis n'importe quel téléphone
 export function subscribeSalonState(cb) {
   const salonRef = ref(db, 'salon');
   return onValue(salonRef, (snapshot) => {
