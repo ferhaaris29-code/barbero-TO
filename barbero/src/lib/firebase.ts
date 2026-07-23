@@ -21,7 +21,7 @@
  */
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue } from 'firebase/database';
-import type { SalonState } from './types';
+import { DEFAULT_STATE } from './defaultState';
 
 export const FIREBASE_CONFIG = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
@@ -36,35 +36,28 @@ export const FIREBASE_CONFIG = {
 const app = getApps().length > 0 ? getApp() : initializeApp(FIREBASE_CONFIG);
 const db = getDatabase(app);
 
-const KEY = 'barbero-salon-state-v6';
-
-export function loadSalonState(): SalonState | null {
-  try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as SalonState) : null;
-  } catch {
-    return null;
-  }
+// 1. Charger l'état au démarrage (charge DEFAULT_STATE si la base est vide)
+export function loadSalonState() {
+  return DEFAULT_STATE;
 }
 
-export function saveSalonState(state: SalonState): void {
+// 2. Envoyer chaque réservation / changement directement à Firebase
+export function saveSalonState(state) {
   if (!state) return;
   try {
-    localStorage.setItem(KEY, JSON.stringify(state));
     set(ref(db, 'salon'), state);
   } catch (e) {
-    console.error(e);
+    console.error("Erreur d'écriture Firebase :", e);
   }
 }
 
-export function subscribeSalonState(cb: (s: SalonState) => void): () => void {
+// 3. Écouter en direct depuis n'importe quel téléphone
+export function subscribeSalonState(cb) {
   const salonRef = ref(db, 'salon');
-  const unsubscribe = onValue(salonRef, (snapshot) => {
+  return onValue(salonRef, (snapshot) => {
     const data = snapshot.val();
-    // SÉCURITÉ : On n'envoie les données à l'application QUE si la base Firebase n'est pas vide
-    if (data && typeof data === 'object') {
-      cb(data as SalonState);
+    if (data) {
+      cb(data);
     }
   });
-  return () => unsubscribe();
 }
