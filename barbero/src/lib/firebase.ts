@@ -21,8 +21,8 @@
  */
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue, type Database } from 'firebase/database';
-import type { SalonState } from '../types';
-import { DEFAULT_STATE } from '../defaultState';
+import type { SalonState } from './types';
+import { DEFAULT_STATE } from './defaultState.ts';
 
 export const FIREBASE_CONFIG = {
   apiKey: (import.meta.env.VITE_FIREBASE_API_KEY as string) || '',
